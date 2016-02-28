@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[8]:
+# In[14]:
 
 import re
 import csv
@@ -14,8 +14,6 @@ from wordcloud import WordCloud
 from stop_words import get_stop_words
 
 # Style guide: https://google.github.io/styleguide/pyguide.html
-# TODO(billypease@gmail.com): close open files (contextlib) or open "with"
-# TODO(billypease@gmail.com): make Stop Words its own function
 # TODO(billypease@gmail.com): run pylint over the code for formatting and bugs
 # TODO(billypease@gmail.com): implement Log Likelihood to Identify Characteristic Words
 # TODO(billypease@gmail.com): implement word counts and curse word counts per episode
@@ -61,26 +59,25 @@ def print_user_lines_to_file(source_file, out_file, tv_character_name):
 
 
 def character_word_analysis(t_out_file, t_count_file, main_character):
-    # count words in tv character's transcript file
-    words = collections.Counter()    
-    char_transcript = open(t_out_file)
-    for line in char_transcript:
-        words.update(line.split())
     # store character's word counts in a CSV file
     word_count_file = open(t_count_file, 'w')
     writer = csv.writer(word_count_file)
+    words = collections.Counter()        
+    with open(t_out_file) as tfile:
+        for line in tfile:
+            words.update(line.split())
+    # count words in tv character's transcript file
     for word, count in words.iteritems():
-        # don't count starting word name: (e.g. "pam:", "jim:", etc.)
+        # don't count if starts with char name: (e.g. "pam:")
         if word != main_character + ':':
-            # CSV row: tv character name, word, count
             writer.writerow([main_character, word, count])
+    word_count_file.close()
     return
 
 
 def sum_word_count(count_file, subject):
     cr = csv.reader(open(count_file,"rb"))
     total_count = sum(int(x[2]) for x in cr)
-    #print '%s | %d' % (subject, total_count)
     return
 
 
@@ -125,7 +122,7 @@ def main():
         'documentary crew member'
     ]
 
-    # get the URLs to scrape
+    # get the URLs to scrape from text file
     with open("urls-for-testing.txt") as f:
     #with open("urls.txt") as f:
         urls = f.readlines()
