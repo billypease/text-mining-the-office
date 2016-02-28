@@ -1,6 +1,8 @@
 
 # coding: utf-8
 
+# In[8]:
+
 import re
 import csv
 import urllib2
@@ -104,6 +106,14 @@ def make_cloud_tag(text):
     image.show()
     return
 
+
+def remove_stop_words(cl_transcript):
+    # remove stop words from transcipt with regex
+    stop_words = get_stop_words('en')    
+    pattern = re.compile(r'\b(' + r'|'.join(stop_words) + r')\b\s*')
+    cl_transcript = pattern.sub('', cl_transcript)
+    return cl_transcript
+
     
 def main():
     
@@ -121,13 +131,9 @@ def main():
         urls = f.readlines()
     transcript = [get_page_text(url) for url in urls]
     
-    # clean transcript string of noise
+    # clean transcript string of noise and stop words
     cleaned_transcript = remove_noise(transcript)
-    
-    # remove Stop Words from cleaned_transcipt with regex
-    stop_words = get_stop_words('en')    
-    pattern = re.compile(r'\b(' + r'|'.join(stop_words) + r')\b\s*')
-    cleaned_transcript = pattern.sub('', cleaned_transcript)
+    cleaned_transcript = remove_stop_words(cleaned_transcript)
     
     # make a Cloud Tag from characters transcript
     make_cloud_tag(cleaned_transcript)
@@ -166,4 +172,24 @@ def main():
 
 if __name__=="__main__":
     main()
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
 
